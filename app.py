@@ -1,5 +1,6 @@
 import os
 import logging
+from typing import Optional, List, Dict
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.responses import JSONResponse
 import uvicorn
@@ -13,17 +14,26 @@ logger = logging.getLogger(__name__)
 app = FastAPI()
 hotel_breaker = pybreaker.CircuitBreaker(fail_max=3, reset_timeout=60)
 
+HOST = os.getenv("host", "localhost")
+USERNAME = os.getenv("userName", "user")
+PASSWORD = os.getenv("password", "pass")
+INDEX_NAME = os.getenv("indexName", "index")
 
-def get_es():
+
+def get_es() -> Elasticsearch:
+    """Create and return an Elasticsearch client."""
     es = Elasticsearch(
-        [os.getenv("host")],
-        http_auth=(os.getenv("userName"), os.getenv("password")),
+        [HOST],
+        http_auth=(USERNAME, PASSWORD),
     )
     return es
 
 
 @app.get("/search")
-def search(city: str = None, rating: int = 1, es: Elasticsearch = Depends(get_es)):
+def search(
+    city: Optional[str] = None, rating: int = 1, es: Elasticsearch = Depends(get_es)
+) -> JSONResponse:
+    """Search for hotels."""
     try:
         hotels = search_hotels(city, rating, es)
         response = JSONResponse(
@@ -45,26 +55,34 @@ def search(city: str = None, rating: int = 1, es: Elasticsearch = Depends(get_es
         ) from e
 
 
-@hotel_breaker
-def search_hotels(city: str, rating: int, es: Elasticsearch):
+@hotel_breaker  # type: ignore
+def search_hotels(city: Optional[str], rating: int, es: Elasticsearch) -> List[Dict]:
+    """Search for hotels in Elasticsearch."""
     rating = rating or 1
 
-    s = Search(using=es, index=os.getenv("indexName"))
+    search_query = Search(using=es, index=INDEX_NAME)
 
     if city is None:
-        s = s.query(Q("match_all") & Q("range", Rating={"gte": rating}))
+        search_query = search_query.query(
+            Q("match_all") & Q("range", Rating={"gte": rating})
+        )
     else:
-        s = s.query(
+        search_query = search_query.query(
             Q("prefix", CityName={"value": city.lower()})
             & Q("range", Rating={"gte": rating})
         )
-    response = s.execute()
-    hotels = [hit["_source"].to_dict() for hit in response.hits.hits]
-    return hotels
+    try:
+        response = search_query.execute()
+        hotels = [hit["_source"].to_dict() for hit in response.hits.hits]
+        return hotels
+    except Exception as e:
+        logger.error(f"Failed to execute search: {e}")
+        return []
 
 
 @app.get("/health")
-def health_check():
+def health_check() -> JSONResponse:
+    """Check the health of the application."""
     return JSONResponse(status_code=200, content="OK")
 
 
