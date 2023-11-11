@@ -51,8 +51,8 @@ jobs:
         git rm -rf .
         git commit --allow-empty -m "Initial gh-pages commit"
         git push origin gh-pages
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
