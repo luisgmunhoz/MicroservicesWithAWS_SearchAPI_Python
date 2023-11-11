@@ -52,6 +52,8 @@ jobs:
         with:
           name: coverage-report
           path: htmlcov
+      - name: Modify .gitignore
+        run: echo "!*" >> htmlcov/.gitignore
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@4.1.5
         with:
