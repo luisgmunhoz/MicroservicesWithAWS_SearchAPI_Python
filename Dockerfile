@@ -1,5 +1,5 @@
 # Build stage
-FROM python:3.10-alpine AS builder
+FROM python:3.9-alpine AS builder
 ENV PYTHONUNBUFFERED 1
 
 WORKDIR /app
@@ -15,7 +15,7 @@ ENV username=$username
 ENV password=$password
 
 # Runtime stage
-FROM python:3.10-alpine
+FROM python:3.9-alpine
 WORKDIR /app
 COPY --from=builder /usr/local/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
 COPY . /app
