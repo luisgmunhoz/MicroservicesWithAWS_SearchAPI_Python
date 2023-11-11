@@ -60,4 +60,4 @@ jobs:
           branch: gh-pages
           folder: htmlcov
           clean: true
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GH_PAT }}
