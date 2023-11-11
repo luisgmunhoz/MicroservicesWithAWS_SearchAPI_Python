@@ -50,7 +50,7 @@ jobs:
         git checkout --orphan gh-pages
         git rm -rf .
         git commit --allow-empty -m "Initial gh-pages commit"
-        git push origin gh-pages
+        git push https://${{ secrets.GH_PAT }}@github.com/luisgmunhoz/MicroservicesWithAWS_SearchAPI_Python.git gh-pages
       env:
         GH_PAT: ${{ secrets.GH_PAT }}
 
