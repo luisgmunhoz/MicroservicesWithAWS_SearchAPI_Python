@@ -6,7 +6,7 @@ authors = ["Luis Guilherme de Souza Munhoz <luisguilherme.sm@hotmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.9"
 uvicorn = "^0.23.2"
 requests = "^2.31.0"
 fastapi = "^0.104.1"
