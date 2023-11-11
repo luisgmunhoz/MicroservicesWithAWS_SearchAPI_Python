@@ -1,0 +1,41 @@
+name: Python CI
+
+on:
+    pull_request:
+        branches:
+            - master
+
+jobs:
+  CI-tests:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip poetry
+        poetry config virtualenvs.create false
+        poetry install --no-interaction --no-ansi
+
+    - name: Run Flake8
+      run: flake8
+
+    - name: Run MyPy
+      run: mypy
+
+    - name: Run pytest
+      run: |
+        pytest --cov --cov-report=html
+
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v2
+      with:
+        name: coverage-report
+        path: htmlcov/
