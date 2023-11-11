@@ -39,6 +39,23 @@ jobs:
       with:
         name: coverage-report
         path: htmlcov/
+
+    - name: Set up Git
+      run: |
+        git config --global user.name 'GitHub Actions'
+        git config --global user.email 'github-actions@github.com'
+
+    - name: Create gh-pages branch if it does not exist
+      run: |
+        git checkout --orphan gh-pages
+        git rm -rf .
+        git commit --allow-empty -m "Initial gh-pages commit"
+        git checkout master
+
+    - name: Run pytest
+      run: |
+        pytest --cov --cov-report=html
+
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
       with:
